@@ -9,18 +9,45 @@ import tensorflow.contrib.slim as slim
 from tensorflow.examples.tutorials.mnist import input_data
 import math
 import os
+import cv2
 
-os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
+# os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 
 def plotNNFilter(units, title='Filter'):
+    # filters = units.shape[3]
+    # plt.figure(1, figsize=(39,30))
+    # n_columns = 6
+    # n_rows = math.ceil(filters / n_columns) + 1
+    # for i in range(filters):
+    #     plt.subplot(n_rows, n_columns, i+1)
+    #     plt.title(title + '_' + str(i))
+    #     image = units[0,:,:,i]
+    #     plt.imshow(image, interpolation="nearest", cmap="gray")
+    #     image_np = np.array(image)
+    #     print(image_np)
+    #     h,w = image_np.shape
+    #     cArray1 = cv2.CreateMat(h, w, cv2.CV_32FC3)
+    #     cArray2 = cv2.fromarray(image_np)
+    #     cv2.CvtColor(cArray2, cArray1, cv2.CV_GRAY2BGR)
+    #     cv2.imwrite(title + '_' + str(i) + '.png', cArray1)
+    # plt.savefig(title + '.png')
     filters = units.shape[3]
-    plt.figure(1, figsize=(39,30))
-    n_columns = 6
-    n_rows = math.ceil(filters / n_columns) + 1
+    spines = 'left', 'right', 'top', 'bottom'
+    labels = ['label' + spine for spine in spines]
+
+    tick_params = {spine : False for spine in spines}
+    tick_params.update({label : False for label in labels})
+
     for i in range(filters):
-        plt.subplot(n_rows, n_columns, i+1)
-        plt.title(title + '_' + str(i))
-        plt.imshow(units[0,:,:,i], interpolation="nearest", cmap="gray")
+        print(i)
+        image = units[0,:,:,i]
+        fig, ax = plt.subplots(1, 1, figsize=(3, 3))
+        img = ax.imshow(image, cmap='magma', interpolation='nearest')
+        for spine in spines:
+            ax.spines[spine].set_visible(False)
+        ax.tick_params(**tick_params)
+
+        fig.savefig('test/' + title + '_' + str(i) + '.png', bbox_inches='tight', pad_inches=0, transparent=True)
 
 
 def getActivatedUnits(layer, stimuli):
@@ -66,7 +93,7 @@ config.gpu_options.per_process_gpu_memory_fraction = 0.6
 sess = tf.Session(config=config)
 init = tf.global_variables_initializer()
 sess.run(init)
-for i in range(10001):
+for i in range(701):
     batch = mnist.train.next_batch(batchSize)
     sess.run(train_step, feed_dict={x:batch[0],true_y:batch[1], keep_prob:0.5})
     if i % 100 == 0 and i != 0:
@@ -84,22 +111,23 @@ while True:
         plt.show()
 
         plotActivatedUnits(hidden_1, imageToUse, 'ConvL1')
-        plt.show()
+        # plt.show()
 
         plotActivatedUnits(pool_1, imageToUse, 'PoolL1')
-        plt.show()
+        # plt.show()
 
-        plotActivatedUnits(hidden_2, imageToUse, 'ConvL2')
-        plt.show()
+        # plotActivatedUnits(hidden_2, imageToUse, 'ConvL2')
+        # # plt.show()
 
-        plotActivatedUnits(pool_2, imageToUse, 'PoolL2')
-        plt.show()
+        # plotActivatedUnits(pool_2, imageToUse, 'PoolL2')
+        # # plt.show()
 
-        plotActivatedUnits(hidden_3, imageToUse, 'ConvL3')
-        plt.show()
+        # plotActivatedUnits(hidden_3, imageToUse, 'ConvL3')
+        # plt.show()
 
-        print(getActivatedUnits(fc_1, imageToUse))
+        # print(getActivatedUnits(fc_1, imageToUse))
         # print(getActivatedUnits(fc_2, imageToUse))
         print(getActivatedUnits(out_y, imageToUse))
-    except:
+    except Exception as e:
+        print(e)
         pass
