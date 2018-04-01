@@ -1,10 +1,11 @@
 <template>
   <div id="app">
+    <vue-headful title="Neural Vision Playground" />
     <Navbar/>
-    <div class="container py-5">
+    <b-container class="py-4">
       <server-disconnected v-if="!isConnected"/>
       <tensorflow v-if="isConnected" />
-    </div>
+    </b-container>
   </div>
 </template>
 

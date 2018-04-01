@@ -1,13 +1,17 @@
 import Vue from 'vue'
 import App from './App.vue'
 import BootstrapVue from 'bootstrap-vue'
+import vueHeadful from 'vue-headful';
+import VueSocketio from 'vue-socket.io';
+
 import 'bootstrap/dist/css/bootstrap.css'
 import 'bootstrap-vue/dist/bootstrap-vue.css'
 
-import VueSocketio from 'vue-socket.io';
-Vue.use(VueSocketio, 'http://localhost:5000');
+Vue.component('vue-headful', vueHeadful);
 
+Vue.use(VueSocketio, 'http://localhost:5000');
 Vue.use(BootstrapVue);
+
 Vue.config.productionTip = false
 
 new Vue({
