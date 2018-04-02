@@ -1,6 +1,9 @@
 <template>
   <b-container>
     <b-table :items="layers" :fields="fields" caption-top>
+      <template slot="index" slot-scope="data">
+        {{ data.index + 1 }}
+      </template>
       <template slot="type" slot-scope="data">
         {{ layerTypeOptions[data.value] }}
       </template>
@@ -104,6 +107,7 @@ export default {
       'convolution': 'convolution'
     },
     fields: [
+      { key: 'index', label: 'Layer no.' },
       { key: 'type', label: 'Type' },
       { key: 'kernel', label: 'Kernel Size' },
       { key: 'nodes', label: 'Number of Node' },

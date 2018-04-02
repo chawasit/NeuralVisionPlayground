@@ -24,6 +24,7 @@ STATE_TRAINING = 'training'
 STATE_TRAINED = 'trained'
 
 EVENT_CURRENT_STATE = 'state'
+EVENT_CURRENT_TRAIN_STATE = 'train_state'
 
 LAYER_CONVOLUTION = 'convolution'
 LAYER_MAX_POOL = 'max_pool'
@@ -72,6 +73,9 @@ def send_state(include_self=True):
     print('sending:', current_config)
     emit(EVENT_CURRENT_STATE, current_config, broadcast=True, include_self=include_self)
 
+def send_train(epoch):
+    print('sedning epoch:', epoch)
+    emit(EVENT_CURRENT_TRAIN_STATE, {'epoch': epoch}, broadcast=True)
 
 @socketio.on('change_learning_rate')
 def on_change_learning_rate(data):
@@ -157,7 +161,11 @@ def on_start_train():
     print('Start Training')
     config.state = STATE_TRAINING
     send_state()
-    time.sleep(3)
+    send_train(1)
+    for epoch in range(1, config.epoch):
+        time.sleep(0.05)
+        if epoch % 100 == 0:
+            send_train(epoch)
     config.state = STATE_TRAINED
     send_state()
 

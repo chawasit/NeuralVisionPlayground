@@ -9,7 +9,8 @@ export default new Vuex.Store({
         disableForm: false,
         configuration: null,
         options: null,
-        result: []
+        train: { epoch: 0 },
+        result: null
     },
     mutations:{
         SOCKET_CONNECT: (state) => {
@@ -23,7 +24,9 @@ export default new Vuex.Store({
         SOCKET_STATE: (state,  data) => {
             state.configuration = data[0]
             state.disableForm = state.configuration.state != 'new'
-            console.log('new state', data[0])
+        },
+        SOCKET_TRAIN_STATE: (state,  data) => {
+            state.train = data[0]
         }
     },
     actions: {
