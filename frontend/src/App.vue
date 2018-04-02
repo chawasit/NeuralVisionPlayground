@@ -3,8 +3,8 @@
     <vue-headful title="Neural Vision Playground" />
     <Navbar/>
     <b-container class="py-4">
-      <server-disconnected v-if="!isConnected"/>
-      <tensorflow v-if="isConnected" />
+      <server-disconnected v-if="!connect"/>
+      <tensorflow v-if="connect" />
     </b-container>
   </div>
 </template>
@@ -13,22 +13,15 @@
 import Navbar from './components/Navbar.vue'
 import ServerDisconnected from './components/ServerDisconnected.vue'
 import Tensorflow from './components/Tensorflow.vue'
+import { mapState } from 'vuex'
+import Store from './Store'
 
 export default {
   name: 'app',
-  data: () => ({
-    isConnected: false
-  }),
-  sockets: {
-    connect () {
-      this.isConnected = true
-      console.log("Socket connected")
-    },
-    disconnect () {
-      this.isConnected = false
-      console.log("Socket disconnected")
-    }
-  },
+  store: Store,
+  computed: mapState([
+    'connect'
+  ]),
   components: {
     Navbar,
     ServerDisconnected,
