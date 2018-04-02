@@ -27,6 +27,10 @@ export default new Vuex.Store({
         },
         SOCKET_TRAIN_STATE: (state,  data) => {
             state.train = data[0]
+        },
+        SOCKET_RESULT: (state,  data) => {
+            state.result = data[0]
+            console.log(state.result)
         }
     },
     actions: {

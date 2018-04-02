@@ -18,6 +18,25 @@
       <b-progress :value="current_epoch" :max="epoch" show-value animated></b-progress>
     </b-card>
 
+    <b-card class="mt-4" title="Input Selector" v-if="trained">
+      <b-button @click="run" >Run</b-button>
+    </b-card>
+
+    <b-card class="mt-4" title="Reaction Inside Layer" v-if="result">
+      <b-card v-for="{config, images, index} in result.convolution" :key="index">
+        <h5>{{ config.type }} kernel size: {{ config.kernel }} ({{ config.type === 'convolution' ? config.nodes: '' }})</h5>
+        <b-row >
+          <b-col v-for="image in images" :key="image">
+            <b-img :src="image" />
+          </b-col>
+        </b-row>
+      </b-card>
+      
+      <b-card title="Prediction">
+        <bar-chart :data="predictData"></bar-chart>
+      </b-card>
+    </b-card>
+
 
   </div>
 </template>
@@ -26,6 +45,7 @@
 import TrainingParameter from './TrainingParameter.vue'
 import ConvolutionNetwork from './ConvolutionNetwork.vue'
 import BlackPaper from './BlackPaper.vue'
+import BarChart from './BarChart.js'
 import { mapState } from 'vuex'
 
 export default {
@@ -33,17 +53,25 @@ export default {
   components: {
     BlackPaper,
     ConvolutionNetwork,
-    TrainingParameter
+    TrainingParameter,
+    BarChart
   },
-  data: () => ({
-    counter: 360,
-    max: 1000
-  }),
   computed: mapState({
     trained: state => state.configuration.state == 'trained',
     training: state => state.configuration.state == 'training',
     epoch: state => state.configuration.epoch,
-    current_epoch: state => state.train.epoch
+    current_epoch: state => state.train.epoch,
+    result: state => state.result,
+    predictData: state => ({
+        labels: ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0'],
+        datasets: [
+          {
+            label: 'Number',
+            backgroundColor: '#f87979',
+            data: state.result.predict.map( n => n * 100)
+          }
+        ]
+      })
   }),
   methods: {
     startTrain() {
@@ -54,6 +82,9 @@ export default {
     },
     reset() {
       this.$socket.emit('reset')
+    },
+    run() {
+      this.$socket.emit('run', 'data')
     }
   }
 }

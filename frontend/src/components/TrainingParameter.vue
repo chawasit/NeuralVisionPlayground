@@ -90,7 +90,7 @@ import { mapState } from 'vuex'
 export default {
   name: 'TrainingParameter',
   data: () => ({
-    learningRateOptions: [3, 1, 0.3, 0.1, 0.03, 0.01, 0.003, 0.001],
+    learningRateOptions: [0.1, 0.03, 0.01, 0.003, 0.001, 0.0003, 0.0001, 0.00003, 0.00001],
   }),
   computed: mapState({
     disableForm: 'disableForm',

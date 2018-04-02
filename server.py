@@ -12,12 +12,14 @@ from flask import Flask, render_template, request, send_from_directory
 from flask_socketio import SocketIO, send, emit
 import copy
 import time
+from io import BytesIO
+import base64
 
 app = Flask(__name__, static_url_path='', static_folder='')
 app.config['SECRET_KEY'] = 'secret!'
 socketio = SocketIO(app)
 
-sess = tf.Session()
+mnist = input_data.read_data_sets("MNIST_data/", one_hot=True)
 
 STATE_NEW = 'new'
 STATE_TRAINING = 'training'
@@ -25,6 +27,8 @@ STATE_TRAINED = 'trained'
 
 EVENT_CURRENT_STATE = 'state'
 EVENT_CURRENT_TRAIN_STATE = 'train_state'
+EVENT_ERROR = 'error'
+EVENT_RESULT = 'result'
 
 LAYER_CONVOLUTION = 'convolution'
 LAYER_MAX_POOL = 'max_pool'
@@ -62,10 +66,45 @@ class Configuration(object):
     def to_dict(self):
         return self.__dict__
 
-
 config = Configuration()
 network = None
+sess = None
 result = None
+train_accuracy = None
+
+def generate_image(units):
+    filters = units.shape[3]
+    spines = 'left', 'right', 'top', 'bottom'
+    labels = ['label' + spine for spine in spines]
+
+    tick_params = {spine : False for spine in spines}
+    tick_params.update({label : False for label in labels})
+
+    images = []
+    for i in range(filters):
+        buffer = BytesIO()
+        
+        image = units[0,:,:,i]
+        fig, ax = plt.subplots(1, 1, figsize=(1, 1))
+        img = ax.imshow(image, cmap='magma', interpolation='nearest')
+        for spine in spines:
+            ax.spines[spine].set_visible(False)
+        ax.tick_params(**tick_params)
+
+        fig.savefig(buffer, bbox_inches='tight', pad_inches=0, transparent=True, format='png')
+        plt.close(fig)
+        base64data = base64.encodestring(buffer.getvalue()).decode('ascii').strip()
+        images.append("data:image/png;base64,%s" % (base64data))
+    
+    return images
+
+def getActivatedUnits(layer, stimuli):
+    return sess.run(layer, feed_dict={network[0]:np.reshape(stimuli,[1,784],order='F'), network[1]:1.0})
+
+
+def activateUnit(layer, stimuli):
+    return generate_image(getActivatedUnits(layer, stimuli))
+
 
 
 def send_state(include_self=True):
@@ -74,8 +113,17 @@ def send_state(include_self=True):
     emit(EVENT_CURRENT_STATE, current_config, broadcast=True, include_self=include_self)
 
 def send_train(epoch):
-    print('sedning epoch:', epoch)
+    print('sending epoch:', epoch)
     emit(EVENT_CURRENT_TRAIN_STATE, {'epoch': epoch}, broadcast=True)
+
+def send_error(error):
+    print('sending error:', error)
+    emit(EVENT_ERROR, error, broadcast=True)
+
+def send_result(result):
+    print('sending result:')
+    emit(EVENT_RESULT, result, broadcast=True)
+
 
 @socketio.on('change_learning_rate')
 def on_change_learning_rate(data):
@@ -158,16 +206,85 @@ def on_add_layer():
 
 @socketio.on('start_train')
 def on_start_train():
+    global network, sess, train_accuracy
     print('Start Training')
     config.state = STATE_TRAINING
     send_state()
-    send_train(1)
-    for epoch in range(1, config.epoch):
-        time.sleep(0.05)
-        if epoch % 100 == 0:
-            send_train(epoch)
+    
+    tf.reset_default_graph()
+    x = tf.placeholder(tf.float32, [None, 784],name="x-in")
+    true_y = tf.placeholder(tf.float32, [None, 10],name="y-in")
+    keep_prob = tf.placeholder("float")
+
+    x_image = tf.reshape(x,[-1,28,28,1])
+    network = [x, keep_prob, x_image]
+    for layer_config in config.convolution_network:
+        kernel_size = layer_config['kernel']
+        nodes = layer_config['nodes']
+        if layer_config['type'] == LAYER_CONVOLUTION:
+            network.append(
+                slim.conv2d(network[-1], nodes, [kernel_size, kernel_size]) 
+            )
+        elif layer_config['type'] == LAYER_AVG_POOL:
+            network.append( 
+                slim.avg_pool2d(network[-1], [kernel_size, kernel_size]) 
+            )
+        elif layer_config['type'] == LAYER_MAX_POOL:
+            network.append( 
+                slim.max_pool2d(network[-1], [kernel_size, kernel_size]) 
+            )
+        else:
+            send_error("Something went wrong! Unknow layer type")
+            break
+
+    flatten = slim.flatten(network[-1])
+    out_y = slim.fully_connected(flatten, 10, activation_fn=tf.nn.softmax)
+    network.append(out_y)
+
+    cross_entropy = -tf.reduce_sum(true_y*tf.log(out_y))
+    correct_prediction = tf.equal(tf.argmax(out_y, 1), tf.argmax(true_y, 1))
+    accuracy = tf.reduce_mean(tf.cast(correct_prediction, "float"))
+    train_step = tf.train.AdamOptimizer(1e-4).minimize(cross_entropy)
+
+    batchSize = config.batch_size
+    sess = tf.Session()
+    init = tf.global_variables_initializer()
+    sess.run(init)
+
+    train_accuracy = []
+
+    for i in range(config.epoch+1):
+        batch = mnist.train.next_batch(batchSize)
+        sess.run(train_step, feed_dict={x:batch[0],true_y:batch[1], keep_prob: config.dropout})
+        train_accuracy.append(
+            sess.run(accuracy, feed_dict={x:batch[0],true_y:batch[1], keep_prob:1.0})
+        )
+        if i % 50 == 0:
+            send_train(i)
+
+    testAccuracy = sess.run(accuracy, feed_dict={x:mnist.test.images,true_y:mnist.test.labels, keep_prob:1.0})
+    print("test accuracy %g"%(testAccuracy))
+
     config.state = STATE_TRAINED
     send_state()
+
+@socketio.on('run')
+def on_run(data):
+    print('Start runing')
+    imageToUse = mnist.test.images[55]
+    res = {
+        'convolution': [],
+        'predict': []
+    }
+    for layer, layer_config in zip(network[3:-1], config.convolution_network):
+        res['convolution'].append({
+            'images': activateUnit(layer, imageToUse),
+            'config': layer_config
+        })
+
+    res['predict'] = getActivatedUnits(network[-1], imageToUse).tolist()[0]
+    send_result(res)
+
 
 @socketio.on('edit')
 def on_edit():
