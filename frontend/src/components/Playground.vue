@@ -7,8 +7,8 @@
 
       <div class="mt-3">
         <b-button-group>
-          <b-button variant="primary" @click="startTrain" :disabled="disable_form">Train</b-button>
-          <b-button variant="danger" @click="reset" :disabled="disable_form">Reset</b-button>
+          <b-button variant="primary" @click="startTrain" :disabled="disableForm">Train</b-button>
+          <b-button variant="danger" @click="reset" :disabled="disableForm">Reset</b-button>
         </b-button-group>
       </div>
     </b-card>
@@ -28,9 +28,9 @@ export default {
     ConvolutionNetwork,
     TrainingParameter
   },
-  computed: mapState({
-    disable_form: state => state.configuration.state != 'new'
-  }),
+  computed: mapState([
+    'disableForm'
+  ]),
   methods: {
     startTrain() {
       this.$socket.emit('start_train')

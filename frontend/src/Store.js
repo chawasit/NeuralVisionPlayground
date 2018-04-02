@@ -6,6 +6,7 @@ Vue.use(Vuex)
 export default new Vuex.Store({
     state: {
         connect: false,
+        disableForm: false,
         configuration: null,
         options: null,
         result: []
@@ -21,6 +22,7 @@ export default new Vuex.Store({
         },
         SOCKET_STATE: (state,  data) => {
             state.configuration = data[0]
+            state.disableForm = state.configuration.state != 'new'
             console.log('new state', data[0])
         }
     },

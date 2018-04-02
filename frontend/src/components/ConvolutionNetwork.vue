@@ -12,16 +12,16 @@
       </template>
       <template slot="action" slot-scope="row">
         <b-button-group size="sm">
-          <b-button @click.stop="row.toggleDetails" variant="primary">
+          <b-button @click.stop="row.toggleDetails" variant="primary" :disabled="disableForm">
            {{ row.detailsShowing ? 'Done' : 'Edit'}}
           </b-button>
-          <b-button @click="moveLayer(row.index, -1)">
+          <b-button @click="moveLayer(row.index, -1)" :disabled="disableForm">
             Up
           </b-button>
-          <b-button @click="moveLayer(row.index, 1)">
+          <b-button @click="moveLayer(row.index, 1)" :disabled="disableForm">
             Down
           </b-button>
-          <b-button variant="danger" @click="removeLayer(row.index)">
+          <b-button variant="danger" @click="removeLayer(row.index)" :disabled="disableForm">
             Remove
           </b-button>
         </b-button-group>
@@ -40,7 +40,7 @@
                               @change="setType($event, row.index)"
                               id="typeSelector"
                               aria-describedby="learningRateHelper"
-                              :disabled="disable_form">
+                              :disabled="disableForm">
                 </b-form-select>
               </b-form-group>
             </b-col>
@@ -59,7 +59,7 @@
                               min="1"
                               max="10"
                               step="1"
-                              :disabled="disable_form">
+                              :disabled="disableForm">
                 </b-form-input>
               </b-form-group>
             </b-col>
@@ -79,7 +79,7 @@
                               min="1"
                               max="30"
                               step="1"
-                              :disabled="disable_form">
+                              :disabled="disableForm">
                 </b-form-input>
               </b-form-group>
             </b-col>
@@ -88,7 +88,7 @@
         </b-card>
       </template>
     </b-table>
-    <b-button size="sm" class="mb-4" variant="primary" @click="addLayer">Add Layer</b-button>
+    <b-button size="sm" class="mb-4" variant="primary" @click="addLayer" :disabled="disableForm">Add Layer</b-button>
   </b-container>
 </template>
 
@@ -111,8 +111,8 @@ export default {
     ]
   }),
   computed: mapState({
+      disableForm: 'disableForm',
       layers: state => state.configuration.convolution_network,
-      disable_form: state => state.configuration.state != 'new'
   }),
   methods: {
     addLayer() {

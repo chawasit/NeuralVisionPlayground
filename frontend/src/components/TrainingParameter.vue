@@ -14,7 +14,7 @@
                           @change="setLearningRate"
                           id="learningRateSelector"
                           aria-describedby="learningRateHelper"
-                          :disabled="disable_form">
+                          :disabled="disableForm">
             </b-form-select>
           </b-form-group>
         </b-col>
@@ -34,7 +34,7 @@
                           min="0"
                           max="1"
                           step="0.1"
-                          :disabled="disable_form">
+                          :disabled="disableForm">
             </b-form-input>
           </b-form-group>
         </b-col>
@@ -53,7 +53,7 @@
                           min="100"
                           max="3000"
                           step="100"
-                          :disabled="disable_form">
+                          :disabled="disableForm">
             </b-form-input>
           </b-form-group>
         </b-col>
@@ -72,7 +72,7 @@
                           min="10"
                           max="200"
                           step="10"
-                          :disabled="disable_form">
+                          :disabled="disableForm">
             </b-form-input>
           </b-form-group>
         </b-col>
@@ -93,7 +93,7 @@ export default {
     learningRateOptions: [3, 1, 0.3, 0.1, 0.03, 0.01, 0.003, 0.001],
   }),
   computed: mapState({
-    disable_form: state => state.configuration.state != 'new',
+    disableForm: 'disableForm',
     learningRate: state => state.configuration.learning_rate,
     dropout: state => state.configuration.dropout,
     epoch: state => state.configuration.epoch,
