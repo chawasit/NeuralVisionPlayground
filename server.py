@@ -112,9 +112,9 @@ def send_state(include_self=True):
     print('sending:', current_config)
     emit(EVENT_CURRENT_STATE, current_config, broadcast=True, include_self=include_self)
 
-def send_train(epoch):
+def send_train(epoch, accuracy=[]):
     print('sending epoch:', epoch)
-    emit(EVENT_CURRENT_TRAIN_STATE, {'epoch': epoch}, broadcast=True)
+    emit(EVENT_CURRENT_TRAIN_STATE, {'epoch': epoch, 'accuracy': accuracy}, broadcast=True)
 
 def send_error(error):
     print('sending error:', error)
@@ -256,22 +256,41 @@ def on_start_train():
     for i in range(config.epoch+1):
         batch = mnist.train.next_batch(batchSize)
         sess.run(train_step, feed_dict={x:batch[0],true_y:batch[1], keep_prob: config.dropout})
-        train_accuracy.append(
-            sess.run(accuracy, feed_dict={x:batch[0],true_y:batch[1], keep_prob:1.0})
-        )
         if i % 50 == 0:
-            send_train(i)
+            train_accuracy.append(
+                float(sess.run(accuracy, feed_dict={x:batch[0],true_y:batch[1], keep_prob:1.0}))
+            )
+            send_train(i, train_accuracy)
 
+    send_train(config.epoch, train_accuracy)
     testAccuracy = sess.run(accuracy, feed_dict={x:mnist.test.images,true_y:mnist.test.labels, keep_prob:1.0})
     print("test accuracy %g"%(testAccuracy))
 
     config.state = STATE_TRAINED
     send_state()
 
-@socketio.on('run')
+@socketio.on('runRandom')
+def on_run_random():
+    print('Start runing')
+    imageToUse = mnist.test.images[ np.random.randint(0, len(mnist.test.images))]
+    res = {
+        'convolution': [],
+        'predict': []
+    }
+    for layer, layer_config in zip(network[3:-1], config.convolution_network):
+        res['convolution'].append({
+            'images': activateUnit(layer, imageToUse),
+            'config': layer_config
+        })
+
+    res['predict'] = getActivatedUnits(network[-1], imageToUse).tolist()[0]
+    send_result(res)
+
+
+@socketio.on('runWithImage')
 def on_run(data):
     print('Start runing')
-    imageToUse = mnist.test.images[55]
+    imageToUse = mnist.test.images[ np.random.randint(0, len(mnist.test.images))]
     res = {
         'convolution': [],
         'predict': []

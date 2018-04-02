@@ -9,7 +9,7 @@ export default new Vuex.Store({
         disableForm: false,
         configuration: null,
         options: null,
-        train: { epoch: 0 },
+        train: { epoch: 0, accuracy: [] },
         result: null
     },
     mutations:{
@@ -27,6 +27,7 @@ export default new Vuex.Store({
         },
         SOCKET_TRAIN_STATE: (state,  data) => {
             state.train = data[0]
+            console.log(state.train)
         },
         SOCKET_RESULT: (state,  data) => {
             state.result = data[0]
