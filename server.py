@@ -11,6 +11,7 @@ from aiohttp import web
 from flask import Flask, render_template, request, send_from_directory
 from flask_socketio import SocketIO, send, emit
 import copy
+import time
 
 app = Flask(__name__, static_url_path='', static_folder='')
 app.config['SECRET_KEY'] = 'secret!'
@@ -155,6 +156,15 @@ def on_add_layer():
 def on_start_train():
     print('Start Training')
     config.state = STATE_TRAINING
+    send_state()
+    time.sleep(3)
+    config.state = STATE_TRAINED
+    send_state()
+
+@socketio.on('edit')
+def on_edit():
+    print('back to editing')
+    config.state = STATE_NEW
     send_state()
 
 @socketio.on('reset')
