@@ -4,7 +4,7 @@
     <Navbar/>
     <b-container class="py-4">
       <server-disconnected v-if="!connect"/>
-      <tensorflow v-if="connect" />
+      <playground v-if="connect" />
     </b-container>
   </div>
 </template>
@@ -12,7 +12,7 @@
 <script>
 import Navbar from './components/Navbar.vue'
 import ServerDisconnected from './components/ServerDisconnected.vue'
-import Tensorflow from './components/Tensorflow.vue'
+import Playground from './components/Playground.vue'
 import { mapState } from 'vuex'
 import Store from './Store'
 
@@ -25,7 +25,7 @@ export default {
   components: {
     Navbar,
     ServerDisconnected,
-    Tensorflow
+    Playground
   },
 }
 </script>

@@ -22,7 +22,7 @@ import BlackPaper from './BlackPaper.vue'
 import { mapState } from 'vuex'
 
 export default {
-  name: 'Tensorflow',
+  name: 'Playground',
   components: {
     BlackPaper,
     ConvolutionNetwork,
