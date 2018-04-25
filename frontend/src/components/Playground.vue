@@ -29,7 +29,7 @@
 
     <b-card class="mt-4" title="Reaction Inside Layer" v-if="result && trained">
       <b-card v-for="{config, images, index} in result.convolution" :key="index">
-        <h5>{{ config.type }} kernel size: {{ config.kernel }} ({{ config.type === 'convolution' ? config.nodes: '' }})</h5>
+        <h5>{{ config.type }} layer, kernel size: {{ config.kernel }} {{ config.type === 'convolution' ? `, nodes: ${config.nodes}`: '' }}</h5>
         <b-row >
           <b-col v-for="image in images" :key="image">
             <b-img :src="image" />
@@ -37,7 +37,7 @@
         </b-row>
       </b-card>
       
-      <b-card title="Prediction">
+      <b-card title="Softmax Layer (Prediction)">
         <bar-chart :height="300" :chart-data="predictData"></bar-chart>
       </b-card>
     </b-card>
@@ -75,7 +75,7 @@ export default {
       datasets: [
         {
           label: 'Probability',
-          backgroundColor: '#f87979',
+          backgroundColor: '#007bff',
           data: state.result.predict
         }
       ]
