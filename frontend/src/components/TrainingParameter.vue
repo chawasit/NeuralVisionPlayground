@@ -87,7 +87,6 @@
 </template>
 
 <script>
-import BlackPaper from './BlackPaper.vue'
 import { mapState } from 'vuex'
 
 export default {
