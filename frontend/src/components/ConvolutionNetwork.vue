@@ -15,16 +15,16 @@
       </template>
       <template slot="action" slot-scope="row">
         <b-button-group size="sm">
-          <b-button @click.stop="row.toggleDetails" variant="primary" :disabled="disableForm">
+          <b-button @click.stop="row.toggleDetails" variant="outline-primary" :disabled="disableForm">
            {{ row.detailsShowing ? 'Done' : 'Edit'}}
           </b-button>
-          <b-button @click="moveLayer(row.index, -1)" :disabled="disableForm">
+          <b-button variant="outline-info" @click="moveLayer(row.index, -1)" :disabled="disableForm">
             Up
           </b-button>
-          <b-button @click="moveLayer(row.index, 1)" :disabled="disableForm">
+          <b-button variant="outline-info" @click="moveLayer(row.index, 1)" :disabled="disableForm">
             Down
           </b-button>
-          <b-button variant="danger" @click="removeLayer(row.index)" :disabled="disableForm">
+          <b-button variant="outline-danger" @click="removeLayer(row.index)" :disabled="disableForm">
             Remove
           </b-button>
         </b-button-group>
@@ -91,7 +91,7 @@
         </b-card>
       </template>
     </b-table>
-    <b-button size="sm" class="mb-4" variant="primary" @click="addLayer" :disabled="disableForm">Add Layer</b-button>
+    <b-button size="sm" class="mb-4" variant="outline-primary" @click="addLayer" :disabled="disableForm">Add Layer</b-button>
   </b-container>
 </template>
 

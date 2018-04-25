@@ -16,6 +16,7 @@ from io import BytesIO
 import base64
 import re
 from PIL import Image
+import time
 
 app = Flask(__name__, static_url_path='', static_folder='')
 app.config['SECRET_KEY'] = 'secret!'
@@ -95,7 +96,7 @@ def generate_image(image, figsize=(1, 1)):
     tick_params.update({label : False for label in labels})
 
     fig, ax = plt.subplots(1, 1, figsize=figsize)
-    ax.imshow(image, cmap='magma', interpolation='nearest')
+    ax.imshow(image, cmap='magma', interpolation='nearest', aspect='auto')
 
     for spine in spines:
         ax.spines[spine].set_visible(False)
@@ -120,19 +121,19 @@ def getActivateUnitImage(layer, stimuli):
 def send_state(include_self=True):
     current_config = config.to_dict()
     print('sending:', current_config)
-    emit(EVENT_CURRENT_STATE, current_config, broadcast=True, include_self=include_self)
+    socketio.emit(EVENT_CURRENT_STATE, current_config, broadcast=True, include_self=include_self)
 
 def send_train(epoch, accuracy=[]):
     print('sending epoch:', epoch)
-    emit(EVENT_CURRENT_TRAIN_STATE, {'epoch': epoch, 'accuracy': accuracy}, broadcast=True)
+    socketio.emit(EVENT_CURRENT_TRAIN_STATE, {'epoch': epoch, 'accuracy': accuracy}, broadcast=True)
 
 def send_error(error):
     print('sending error:', error)
-    emit(EVENT_ERROR, error, broadcast=True)
+    socketio.emit(EVENT_ERROR, error, broadcast=True)
 
 def send_result(result):
     print('sending result:')
-    emit(EVENT_RESULT, result, broadcast=True)
+    socketio.emit(EVENT_RESULT, result, broadcast=True)
 
 
 @socketio.on('change_learning_rate')
@@ -280,23 +281,16 @@ def on_start_train():
     config.state = STATE_TRAINED
     send_state()
 
-@socketio.on('runRandom')
-def on_run_random():
-    print('Start runing')
-    imageToUse = mnist.test.images[ np.random.randint(0, len(mnist.test.images)) ]
 
-    print(imageToUse)
-    print(imageToUse.shape)
-
+def create_result(imageToUse):
     flatten = getActivatedUnits(network[-2], imageToUse).tolist()[0]
     flatten_len = len(flatten)
-    flatten = [flatten for i in range(5)]
     flatten = np.reshape(flatten, [-1,flatten_len])
 
     res = {
         'input_image': generate_image(np.reshape(imageToUse, [28,28])),
         'convolution': [],
-        'flatten': generate_image(flatten, figsize=(5,3)),
+        'flatten': generate_image(flatten, figsize=(6,1)),
         'predict': []
     }
 
@@ -307,6 +301,27 @@ def on_run_random():
         })
 
     res['predict'] = getActivatedUnits(network[-1], imageToUse).tolist()[0]
+
+    return res
+
+
+@socketio.on('runRandom')
+def on_run_random(data):
+    print('Start runing')
+
+    number = int(data)
+    index = 0
+
+    if number > -1:
+
+        locations = np.where(mnist.test.labels.argmax(axis=1) == number)[0]
+        index = np.random.choice(locations)
+    else:
+        index = np.random.randint(0, len(mnist.test.images))
+    
+    imageToUse = mnist.test.images[ index ]
+
+    res = create_result(imageToUse)
     send_result(res)
 
 
@@ -320,33 +335,13 @@ def on_run(data):
     im = im.resize((28, 28))
 
     rgb_image = np.array(im)
-
     gray_image = rgb_image[:,:,0]
     print(gray_image.shape)
     gray_image = gray_image / gray_image.max()
-    print(gray_image)
 
     imageToUse = gray_image.flatten()
 
-    flatten = getActivatedUnits(network[-2], imageToUse).tolist()[0]
-    flatten_len = len(flatten)
-    flatten = [flatten for i in range(5)]
-    flatten = np.reshape(flatten, [-1,flatten_len])
-
-    res = {
-        'input_image': generate_image(np.reshape(imageToUse, [28,28])),
-        'convolution': [],
-        'flatten': generate_image(flatten, figsize=(5,3)),
-        'predict': []
-    }
-
-    for layer, layer_config in zip(network[3:-2], config.convolution_network):
-        res['convolution'].append({
-            'images': getActivateUnitImage(layer, imageToUse),
-            'config': layer_config
-        })
-
-    res['predict'] = getActivatedUnits(network[-1], imageToUse).tolist()[0]
+    res = create_result(imageToUse)
     send_result(res)
 
 

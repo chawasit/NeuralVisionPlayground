@@ -1,10 +1,22 @@
 <template>
-  <canvas ref="canvas"
-            @mousedown="mousedown"
-            @mousemove="mousemove"
-            @mouseup="mouseup"
-            @mouseout="mouseup"
-            style="background: #000"/>
+  <b-container>
+    <b-row>
+      <canvas ref="canvas"
+                @mousedown="mousedown"
+                @mousemove="mousemove"
+                @mouseup="mouseup"
+                @mouseout="mouseup"
+                width="300px"
+                height="300px"
+                style="background: #000; width: 300px; height: 300px"/>
+    </b-row>
+    <b-row class="mt-2">
+      <b-btn-group>
+      <b-button variant="outline-primary" @click="send">Send</b-button>
+      <b-button variant="outline-danger" @click="reset">Reset</b-button>
+      </b-btn-group>
+    </b-row>
+  </b-container>
 </template>
 
 <script>
@@ -33,7 +45,7 @@ export default {
       context.fillStyle = "#fff"
       context.strokeStyle = "#fff"
       context.lineJoin = "round"
-      context.lineWidth = 16;
+      context.lineWidth = 24
       
       var clickX = this.draw.clickX
       var clickY = this.draw.clickY
@@ -56,7 +68,7 @@ export default {
       this.draw.dragging = []
     },
     mousedown (event) {
-      this.resetCanvas()
+      
       this.draw.isPainting = true;
       this.addClick(
         event.offsetX,
@@ -66,12 +78,6 @@ export default {
     },
     mouseup () {
       this.draw.isPainting = false
-      const canvas = this.$refs.canvas
-      const dataURL = canvas.toDataURL("image/png")
-      if (this.draw.lastData != dataURL) {  
-        this.$emit('stopdrawing', dataURL)
-        this.draw.lastData = dataURL
-      }
     },
     mousemove (event) {
       if (this.draw.isPainting) {
@@ -82,6 +88,18 @@ export default {
         )
         this.redraw()
       }
+    },
+    send () {
+      const canvas = this.$refs.canvas
+      const dataURL = canvas.toDataURL("image/png")
+      if (this.draw.lastData != dataURL) {  
+        this.$emit('stopdrawing', dataURL)
+        this.draw.lastData = dataURL
+      }
+    },
+    reset () {
+      this.resetCanvas()
+      this.redraw()
     }
   },
   ready () {

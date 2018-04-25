@@ -7,9 +7,9 @@
 
       <div class="mt-3">
         <b-button-group>
-          <b-button variant="primary" @click="startTrain" :disabled="training" v-if="!trained">Train</b-button>
-          <b-button @click="edit" :disabled="training" v-if="trained">Edit</b-button>
-          <b-button variant="danger" @click="reset" :disabled="training">Reset</b-button>
+          <b-button variant="outline-primary" @click="startTrain" :disabled="training" v-if="!trained">Train</b-button>
+          <b-button variant="outline-primary" @click="edit" :disabled="training" v-if="trained">Edit</b-button>
+          <b-button variant="outline-danger" @click="reset" :disabled="training">Reset</b-button>
         </b-button-group>
       </div>
     </b-card>
@@ -18,13 +18,31 @@
       <b-progress :value="current_epoch" :max="epoch" show-value animated></b-progress>
     </b-card>
 
-    <b-card class="mt-4" title="Train Accuracy" v-if="accuracy.length>0" @focus="accuracy.length>0">
+    <b-card class="mt-4" title="Train Accuracy" v-if="accuracy.length>0 & trained" @focus="accuracy.length>0">
       <line-chart :height="300" :chart-data="accuracyData"/>
     </b-card>
 
     <b-card class="mt-4" title="Input Selector" v-if="trained">
-      <black-paper @stopdrawing="runWithImage" />
-      <b-button @click="run" >Random</b-button>
+      <b-row>
+        <b-col>
+          <black-paper @stopdrawing="runWithImage" v-b-tooltip.hover title="วาดตัวเลข"/>
+        </b-col>
+        <b-col>
+          <b-btn-group v-b-tooltip.hover title="สุ่มรูปตัวเลขจากทั้งหมด หรือสุ่มตามเลขที่กำหนด">
+          <b-button variant="primary" @click="run(-1)" >Random</b-button>
+          <b-button variant="outline-primary" @click="run(0)" >0</b-button>
+          <b-button variant="outline-primary" @click="run(1)" >1</b-button>
+          <b-button variant="outline-primary" @click="run(2)" >2</b-button>
+          <b-button variant="outline-primary" @click="run(3)" >3</b-button>
+          <b-button variant="outline-primary" @click="run(4)" >4</b-button>
+          <b-button variant="outline-primary" @click="run(5)" >5</b-button>
+          <b-button variant="outline-primary" @click="run(6)" >6</b-button>
+          <b-button variant="outline-primary" @click="run(7)" >7</b-button>
+          <b-button variant="outline-primary" @click="run(8)" >8</b-button>
+          <b-button variant="outline-primary" @click="run(9)" >9</b-button>
+          </b-btn-group>
+        </b-col>
+      </b-row>
     </b-card>
 
     <b-card class="mt-4" title="Reaction Inside Layer" v-if="result && trained">
@@ -109,8 +127,8 @@ export default {
     reset() {
       this.$socket.emit('reset')
     },
-    run() {
-      this.$socket.emit('runRandom')
+    run(id) {
+      this.$socket.emit('runRandom', id)
     },
     runWithImage(image) {
       this.$socket.emit('runWithImage', image)
