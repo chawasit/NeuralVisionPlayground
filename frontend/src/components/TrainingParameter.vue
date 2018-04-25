@@ -8,7 +8,8 @@
           <b-form-group id="learningRateGroupSelector"
                   label="Learning rate:"
                   label-for="learningRateSelector"
-                  description="อัตราการเรียนรู้">
+                  description="อัตราการเรียนรู้"
+                  v-b-tooltip.hover title="อัตราส่วนที่ค่าน้ำหนัก(weight)จะถูกปรับจากกระบวนการ backpropagation ">
             <b-form-select :value="learningRate"
                           :options="learningRateOptions"
                           @change="setLearningRate"
@@ -26,7 +27,7 @@
                   label="Dropout:"
                   label-for="dropoutSelector"
                   description="อัตราการปล่อยวาง"
-                  v-b-tooltip.hover title="ช่วยไม่ให้เกิด overfit">
+                  v-b-tooltip.hover title="โอกาสที่บางโหนดให้ไม่ได้รับการอัพเดทค่าน้ำหนัก(weight)จากกระบวนการ backpropagation เพื่อป้องกันการเกิด overfitting">
             <b-form-input :value="dropout"
                           @change="setDropout"
                           id="dropoutSelector"
@@ -45,7 +46,8 @@
           <b-form-group id="epochGroupSelector"
                   label="Epoch:"
                   label-for="epochSelector"
-                  description="จำนวนรอบในการฝึกสอน">
+                  description="จำนวนรอบในการฝึกสอน"
+                  v-b-tooltip.hover title="จำนวนรวมในการฝึกสอนทั้งหมด การฝึกสอนมากจะทำให้มีโมเดลมีความถูกต้องมากขึ้น แต่การฝึกสอนมากเกินไปจะทำให้โมเดล overfitting ได้">
             <b-form-input :value="epoch"
                           @change="setEpoch"
                           id="epochSelector"
@@ -64,7 +66,8 @@
           <b-form-group id="batchSizeGroupSelector"
                   label="Batch size:"
                   label-for="batchSizeSelector"
-                  description="จำนวนข้อมูลในแต่ละรอบการฝึกสอน">
+                  description="จำนวนข้อมูลในแต่ละรอบการฝึกสอน"
+                  v-b-tooltip.hover title="จำนวนข้อมูลที่จะถูกใช้ในการฝึกสอนแต่ละรอบ">
             <b-form-input :value="batchSize"
                           @change="setBatchSize"
                           id="batchSizeSelector"

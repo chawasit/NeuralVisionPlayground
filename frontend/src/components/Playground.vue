@@ -18,7 +18,7 @@
       <b-progress :value="current_epoch" :max="epoch" show-value animated></b-progress>
     </b-card>
 
-    <b-card class="mt-4" title="Train Accuracy" v-if="accuracy.length>0">
+    <b-card class="mt-4" title="Train Accuracy" v-if="accuracy.length>0" @focus="accuracy.length>0">
       <line-chart :height="300" :chart-data="accuracyData"/>
     </b-card>
 
@@ -74,14 +74,14 @@ export default {
       labels: ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'],
       datasets: [
         {
-          label: 'Probability for Number',
+          label: 'Probability',
           backgroundColor: '#f87979',
-          data: state.result.predict.map( n => n * 100)
+          data: state.result.predict
         }
       ]
     }),
     accuracyData: state => ({
-      labels: Array(state.train.accuracy.length).fill().map((_, idx) => idx),
+      labels: Array(state.train.accuracy.length).fill().map((_, idx) => idx * 50),
       datasets: [
         {
           label: 'Accuracy over epoch',
