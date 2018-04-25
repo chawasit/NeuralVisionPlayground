@@ -33,7 +33,7 @@ export default {
       context.fillStyle = "#fff"
       context.strokeStyle = "#fff"
       context.lineJoin = "round"
-      context.lineWidth = 8;
+      context.lineWidth = 16;
       
       var clickX = this.draw.clickX
       var clickY = this.draw.clickY

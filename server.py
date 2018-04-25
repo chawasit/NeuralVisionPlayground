@@ -14,6 +14,8 @@ import copy
 import time
 from io import BytesIO
 import base64
+import re
+from PIL import Image
 
 app = Flask(__name__, static_url_path='', static_folder='')
 app.config['SECRET_KEY'] = 'secret!'
@@ -283,11 +285,14 @@ def on_run_random():
     print('Start runing')
     imageToUse = mnist.test.images[ np.random.randint(0, len(mnist.test.images)) ]
 
+    print(imageToUse)
+    print(imageToUse.shape)
+
     flatten = getActivatedUnits(network[-2], imageToUse).tolist()[0]
     flatten_len = len(flatten)
     flatten = [flatten for i in range(5)]
     flatten = np.reshape(flatten, [-1,flatten_len])
-    print(flatten)
+
     res = {
         'input_image': generate_image(np.reshape(imageToUse, [28,28])),
         'convolution': [],
@@ -308,12 +313,34 @@ def on_run_random():
 @socketio.on('runWithImage')
 def on_run(data):
     print('Start runing')
-    imageToUse = mnist.test.images[ np.random.randint(0, len(mnist.test.images))]
+
+    imgstr = re.search(r'base64,(.*)', data).group(1)
+    image_bytes = BytesIO(base64.b64decode(imgstr))
+    im = Image.open(image_bytes).convert('LA')
+    im = im.resize((28, 28))
+
+    rgb_image = np.array(im)
+
+    gray_image = rgb_image[:,:,0]
+    print(gray_image.shape)
+    gray_image = gray_image / gray_image.max()
+    print(gray_image)
+
+    imageToUse = gray_image.flatten()
+
+    flatten = getActivatedUnits(network[-2], imageToUse).tolist()[0]
+    flatten_len = len(flatten)
+    flatten = [flatten for i in range(5)]
+    flatten = np.reshape(flatten, [-1,flatten_len])
+
     res = {
+        'input_image': generate_image(np.reshape(imageToUse, [28,28])),
         'convolution': [],
+        'flatten': generate_image(flatten, figsize=(5,3)),
         'predict': []
     }
-    for layer, layer_config in zip(network[3:-1], config.convolution_network):
+
+    for layer, layer_config in zip(network[3:-2], config.convolution_network):
         res['convolution'].append({
             'images': getActivateUnitImage(layer, imageToUse),
             'config': layer_config
