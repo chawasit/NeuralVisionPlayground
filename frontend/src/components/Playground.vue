@@ -28,6 +28,10 @@
     </b-card>
 
     <b-card class="mt-4" title="Reaction Inside Layer" v-if="result && trained">
+      <b-card class="mt-4" title="Input Image" v-if="trained">
+        <b-img :src="result.input_image" />
+      </b-card>
+
       <b-card v-for="{config, images, index} in result.convolution" :key="index">
         <h5>{{ config.type }} layer, kernel size: {{ config.kernel }} {{ config.type === 'convolution' ? `, nodes: ${config.nodes}`: '' }}</h5>
         <b-row >
@@ -35,6 +39,10 @@
             <b-img :src="image" />
           </b-col>
         </b-row>
+      </b-card>
+
+      <b-card class="mt-4" title="flatten layer" v-if="trained">
+        <b-img :src="result.flatten" />
       </b-card>
       
       <b-card title="Softmax Layer (Prediction)">
@@ -81,7 +89,7 @@ export default {
       ]
     }),
     accuracyData: state => ({
-      labels: Array(state.train.accuracy.length).fill().map((_, idx) => idx * 50),
+      labels: Array(state.train.accuracy.length).fill().map((_, idx) => idx * 10),
       datasets: [
         {
           label: 'Accuracy over epoch',

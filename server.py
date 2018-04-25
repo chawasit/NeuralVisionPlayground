@@ -72,38 +72,46 @@ sess = None
 result = None
 train_accuracy = None
 
-def generate_image(units):
+def generate_unit_image(units):
     filters = units.shape[3]
+
+    images = []
+    for i in range(filters):
+        image = units[0,:,:,i]
+        images.append(generate_image(image))
+    
+    return images
+
+
+def generate_image(image, figsize=(1, 1)):
+    buffer = BytesIO()
+
     spines = 'left', 'right', 'top', 'bottom'
     labels = ['label' + spine for spine in spines]
 
     tick_params = {spine : False for spine in spines}
     tick_params.update({label : False for label in labels})
 
-    images = []
-    for i in range(filters):
-        buffer = BytesIO()
-        
-        image = units[0,:,:,i]
-        fig, ax = plt.subplots(1, 1, figsize=(1, 1))
-        img = ax.imshow(image, cmap='magma', interpolation='nearest')
-        for spine in spines:
-            ax.spines[spine].set_visible(False)
+    fig, ax = plt.subplots(1, 1, figsize=figsize)
+    ax.imshow(image, cmap='magma', interpolation='nearest')
+
+    for spine in spines:
+        ax.spines[spine].set_visible(False)
         ax.tick_params(**tick_params)
 
-        fig.savefig(buffer, bbox_inches='tight', pad_inches=0, transparent=True, format='png')
-        plt.close(fig)
-        base64data = base64.encodestring(buffer.getvalue()).decode('ascii').strip()
-        images.append("data:image/png;base64,%s" % (base64data))
+    fig.savefig(buffer, bbox_inches='tight', pad_inches=0, transparent=True, format='png')
+    plt.close(fig)
+    base64data = base64.encodestring(buffer.getvalue()).decode('ascii').strip()
     
-    return images
+    return "data:image/png;base64,%s" % (base64data)
+
 
 def getActivatedUnits(layer, stimuli):
     return sess.run(layer, feed_dict={network[0]:np.reshape(stimuli,[1,784],order='F'), network[1]:1.0})
 
 
-def activateUnit(layer, stimuli):
-    return generate_image(getActivatedUnits(layer, stimuli))
+def getActivateUnitImage(layer, stimuli):
+    return generate_unit_image(getActivatedUnits(layer, stimuli))
 
 
 
@@ -239,6 +247,7 @@ def on_start_train():
 
     flatten = slim.flatten(network[-1])
     out_y = slim.fully_connected(flatten, 10, activation_fn=tf.nn.softmax)
+    network.append(flatten)
     network.append(out_y)
 
     cross_entropy = -tf.reduce_sum(true_y*tf.log(out_y))
@@ -256,7 +265,7 @@ def on_start_train():
     for i in range(config.epoch+1):
         batch = mnist.train.next_batch(batchSize)
         sess.run(train_step, feed_dict={x:batch[0],true_y:batch[1], keep_prob: config.dropout})
-        if i % 50 == 0:
+        if i % 10 == 0:
             train_accuracy.append(
                 float(sess.run(accuracy, feed_dict={x:batch[0],true_y:batch[1], keep_prob:1.0}))
             )
@@ -272,14 +281,23 @@ def on_start_train():
 @socketio.on('runRandom')
 def on_run_random():
     print('Start runing')
-    imageToUse = mnist.test.images[ np.random.randint(0, len(mnist.test.images))]
+    imageToUse = mnist.test.images[ np.random.randint(0, len(mnist.test.images)) ]
+
+    flatten = getActivatedUnits(network[-2], imageToUse).tolist()[0]
+    flatten_len = len(flatten)
+    flatten = [flatten for i in range(5)]
+    flatten = np.reshape(flatten, [-1,flatten_len])
+    print(flatten)
     res = {
+        'input_image': generate_image(np.reshape(imageToUse, [28,28])),
         'convolution': [],
+        'flatten': generate_image(flatten, figsize=(5,3)),
         'predict': []
     }
-    for layer, layer_config in zip(network[3:-1], config.convolution_network):
+
+    for layer, layer_config in zip(network[3:-2], config.convolution_network):
         res['convolution'].append({
-            'images': activateUnit(layer, imageToUse),
+            'images': getActivateUnitImage(layer, imageToUse),
             'config': layer_config
         })
 
@@ -297,7 +315,7 @@ def on_run(data):
     }
     for layer, layer_config in zip(network[3:-1], config.convolution_network):
         res['convolution'].append({
-            'images': activateUnit(layer, imageToUse),
+            'images': getActivateUnitImage(layer, imageToUse),
             'config': layer_config
         })
 
@@ -320,6 +338,7 @@ def on_reset():
 
 @socketio.on('connect')
 def on_connect():
+    print('Client connected')
     send_state()
 
 @socketio.on('disconnect')
