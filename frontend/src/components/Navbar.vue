@@ -1,7 +1,7 @@
 <template>
   <b-navbar toggleable="md" type="dark" variant="primary">
     <div class="container">
-      <b-navbar-brand href="#">Neural Vision Playground</b-navbar-brand>
+      <b-navbar-brand id="band-title" href="#">Neural Vision Playground</b-navbar-brand>
 
       <b-collapse is-nav id="nav_collapse">
         <b-navbar-nav>
