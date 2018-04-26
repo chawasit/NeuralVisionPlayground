@@ -32,7 +32,7 @@
       </div>
     </b-card>
 
-    <b-card class="mt-4" title="Training" v-if="training">
+    <b-card class="mt-4" title="Training Progress" v-if="training">
       <b-progress :value="current_epoch" :max="epoch" show-value animated></b-progress>
     </b-card>
 
@@ -83,7 +83,7 @@
         </b-row>
       </b-card>
 
-      <b-card class="mt-4" title="flatten layer" v-if="trained">
+      <b-card title="Flatten layer" v-if="trained">
         <b-img :src="result.flatten" />
       </b-card>
       
