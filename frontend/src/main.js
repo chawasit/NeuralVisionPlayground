@@ -12,7 +12,7 @@ import Store from './Store.js'
 Vue.use(Vuex);
 Vue.component('vue-headful', vueHeadful);
 
-Vue.use(VueSocketio, 'http://localhost:5000', Store);
+Vue.use(VueSocketio, ':5000', Store);
 Vue.use(BootstrapVue);
 
 Vue.config.productionTip = false
