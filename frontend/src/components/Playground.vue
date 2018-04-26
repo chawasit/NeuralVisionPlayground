@@ -9,7 +9,7 @@
              @dismissed="showDismissibleAlert=false">
         {{ error }}
       </b-alert>
-      
+
       <training-parameter/>
 
       <div class="mt-3">
@@ -52,7 +52,11 @@
       </b-row>
     </b-card>
 
-    <b-card class="mt-4" title="Reaction Inside Layer" v-if="result && trained">
+    <b-card class="mt-4" title="Reaction Inside Layer" v-if="waitResult">
+      <b-progress :value="100" variant="info" striped :animated="true" class="mb-2"></b-progress>
+    </b-card>
+
+    <b-card class="mt-4" title="Reaction Inside Layer" v-if="result && trained && !waitResult">
       <b-card class="mt-4" title="Input Image" v-if="trained">
         <b-img :src="result.input_image" />
       </b-card>
@@ -97,7 +101,8 @@ export default {
     LineChart
   },
   data: () => ({
-    showDismissibleAlert: false
+    showDismissibleAlert: false,
+    waitResult: false
   }),
   computed: mapState({
     trained: state => state.configuration.state == 'trained',
@@ -140,15 +145,21 @@ export default {
     },
     run(id) {
       this.$socket.emit('runRandom', id)
+      this.waitResult = true
     },
     runWithImage(image) {
       this.$socket.emit('runWithImage', image)
+      this.waitResult = true
     }
   },
   watch: {
     error () {
       console.log('Error change')
       this.showDismissibleAlert = true
+      this.waitResult = false
+    },
+    result () {
+      this.waitResult = false
     }
   }
 }
