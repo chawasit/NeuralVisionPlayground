@@ -13,7 +13,7 @@
     <b-row class="mt-2">
       <b-btn-group>
       <b-button variant="outline-primary" :disabled="disabled" @click="send">Send</b-button>
-      <b-button variant="outline-danger" :disabled="disabled" @click="reset">Reset</b-button>
+      <b-button variant="outline-danger" :disabled="disabled" @click="reset">Reset Canvas</b-button>
       </b-btn-group>
     </b-row>
   </b-container>

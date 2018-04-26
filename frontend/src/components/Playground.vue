@@ -1,15 +1,15 @@
 <template>
   <div>
     <b-container>
-      <h1>Playground</h1>
+      <h1>MNIST Playground</h1>
       <p>
-        แสดงการสร้างโมเดลอย่างง่ายเพื่อจำแนกรูปตัวเลขที่วาดด้วยมือ
+        เครื่องมือทดลองการสร้างโมเดลสำหรับการจำแนกตัวเลขจากลายมือ สามารถปรับโครงข่ายประสาทเทียม และตัวแปรต่าง ๆ ในการฝึกสอนได้
       </p>
     </b-container>
 
     <b-card title="Network Configuration" class="mt-4">
       <p class="card-text">
-        กำหนดชั้นต่าง ๆ สำหรับการทำ convolution (image filter) และการทำ pooling
+        กำหนดชั้นต่าง ๆ สำหรับการทำ convolution และ pooling
       </p>
 
       <convolution-network />
@@ -26,8 +26,8 @@
       <div class="mt-3">
         <b-button-group>
           <b-button variant="outline-primary" @click="startTrain" :disabled="training" v-if="!trained">Train</b-button>
-          <b-button variant="outline-primary" @click="edit" :disabled="training" v-if="trained">Edit</b-button>
-          <b-button variant="outline-danger" @click="reset" :disabled="training">Reset</b-button>
+          <b-button variant="outline-primary" @click="edit" :disabled="training" v-if="trained">Edit Model</b-button>
+          <b-button variant="outline-danger" @click="reset" :disabled="training">Reset Model</b-button>
         </b-button-group>
       </div>
     </b-card>
@@ -41,6 +41,10 @@
     </b-card>
 
     <b-card class="mt-4" title="Input Image" v-if="trained">
+      <p class="card-text">
+        หลังจากที่ฝึกสอนโครงข่ายประสาทเทียมเสร็จแล้ว ในส่วนนี่จะทดการทดลองใช้งานโครงข่ายประสาทเทียมโดยการวาดตัวเลข หรือสุ่มจากข้อมูลตั้งต้น
+      </p>
+
       <b-row>
         <b-col>
           <h5>วาดตัวเลข</h5>
