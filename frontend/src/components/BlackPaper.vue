@@ -12,8 +12,8 @@
     </b-row>
     <b-row class="mt-2">
       <b-btn-group>
-      <b-button variant="outline-primary" @click="send">Send</b-button>
-      <b-button variant="outline-danger" @click="reset">Reset</b-button>
+      <b-button variant="outline-primary" :disabled="disabled" @click="send">Send</b-button>
+      <b-button variant="outline-danger" :disabled="disabled" @click="reset">Reset</b-button>
       </b-btn-group>
     </b-row>
   </b-container>
@@ -31,6 +31,12 @@ export default {
       lastData: ''
     }
   }),
+  props: {
+    disabled: {
+      type: Boolean,
+      default: false
+    }
+  },
   methods: {
     addClick (x, y, dragging) {
       this.draw.clickX.push(x)
@@ -68,19 +74,20 @@ export default {
       this.draw.dragging = []
     },
     mousedown (event) {
-      
       this.draw.isPainting = true;
-      this.addClick(
-        event.offsetX,
-        event.offsetY,
-      )
-      this.redraw()
+      if (this.draw.isPainting && !this.disabled) {
+        this.addClick(
+          event.offsetX,
+          event.offsetY,
+        )
+        this.redraw()
+      }
     },
     mouseup () {
       this.draw.isPainting = false
     },
     mousemove (event) {
-      if (this.draw.isPainting) {
+      if (this.draw.isPainting && !this.disabled) {
         this.addClick(
           event.offsetX,
           event.offsetY,
@@ -92,10 +99,8 @@ export default {
     send () {
       const canvas = this.$refs.canvas
       const dataURL = canvas.toDataURL("image/png")
-      if (this.draw.lastData != dataURL) {  
-        this.$emit('stopdrawing', dataURL)
-        this.draw.lastData = dataURL
-      }
+      this.$emit('stopdrawing', dataURL)
+      this.draw.lastData = dataURL
     },
     reset () {
       this.resetCanvas()

@@ -32,28 +32,28 @@
     <b-card class="mt-4" title="Input Selector" v-if="trained">
       <b-row>
         <b-col>
-          <black-paper @stopdrawing="runWithImage" v-b-tooltip.hover title="วาดตัวเลข"/>
+          <black-paper @stopdrawing="runWithImage" v-b-tooltip.hover title="วาดตัวเลข" :disabled="waitResult"/>
         </b-col>
         <b-col>
           <b-btn-group v-b-tooltip.hover title="สุ่มรูปตัวเลขจากทั้งหมด หรือสุ่มตามเลขที่กำหนด">
-          <b-button variant="primary" @click="run(-1)" >Random</b-button>
-          <b-button variant="outline-primary" @click="run(0)" >0</b-button>
-          <b-button variant="outline-primary" @click="run(1)" >1</b-button>
-          <b-button variant="outline-primary" @click="run(2)" >2</b-button>
-          <b-button variant="outline-primary" @click="run(3)" >3</b-button>
-          <b-button variant="outline-primary" @click="run(4)" >4</b-button>
-          <b-button variant="outline-primary" @click="run(5)" >5</b-button>
-          <b-button variant="outline-primary" @click="run(6)" >6</b-button>
-          <b-button variant="outline-primary" @click="run(7)" >7</b-button>
-          <b-button variant="outline-primary" @click="run(8)" >8</b-button>
-          <b-button variant="outline-primary" @click="run(9)" >9</b-button>
+          <b-button variant="primary" :disabled="waitResult" @click="run(-1)" >Random</b-button>
+          <b-button variant="outline-primary" :disabled="waitResult" @click="run(0)" >0</b-button>
+          <b-button variant="outline-primary" :disabled="waitResult" @click="run(1)" >1</b-button>
+          <b-button variant="outline-primary" :disabled="waitResult" @click="run(2)" >2</b-button>
+          <b-button variant="outline-primary" :disabled="waitResult" @click="run(3)" >3</b-button>
+          <b-button variant="outline-primary" :disabled="waitResult" @click="run(4)" >4</b-button>
+          <b-button variant="outline-primary" :disabled="waitResult" @click="run(5)" >5</b-button>
+          <b-button variant="outline-primary" :disabled="waitResult" @click="run(6)" >6</b-button>
+          <b-button variant="outline-primary" :disabled="waitResult" @click="run(7)" >7</b-button>
+          <b-button variant="outline-primary" :disabled="waitResult" @click="run(8)" >8</b-button>
+          <b-button variant="outline-primary" :disabled="waitResult" @click="run(9)" >9</b-button>
           </b-btn-group>
         </b-col>
       </b-row>
     </b-card>
 
     <b-card class="mt-4" title="Reaction Inside Layer" v-if="waitResult">
-      <b-progress :value="100" variant="info" striped :animated="true" class="mb-2"></b-progress>
+      <b-progress :value="100" variant="primary" striped animated class="mb-2"></b-progress>
     </b-card>
 
     <b-card class="mt-4" title="Reaction Inside Layer" v-if="result && trained && !waitResult">
