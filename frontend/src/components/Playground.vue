@@ -18,7 +18,7 @@
       <b-progress :value="current_epoch" :max="epoch" show-value animated></b-progress>
     </b-card>
 
-    <b-card class="mt-4" title="Train Accuracy" v-if="accuracy.length>0 & trained" @focus="accuracy.length>0">
+    <b-card class="mt-4" title="Train Accuracy" v-if="accuracy.length>0" @focus="accuracy.length>0">
       <line-chart :height="300" :chart-data="accuracyData"/>
     </b-card>
 

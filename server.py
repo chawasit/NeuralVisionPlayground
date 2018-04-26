@@ -367,6 +367,14 @@ def on_connect():
 def on_disconnect():
     print('Client disconnected')
 
+@socketio.on_error()        # Handles the default namespace
+def error_handler(e):
+    global config
+    print('ERROR OCCURED')
+    send_error(str(e))
+    config.state = STATE_NEW
+    send_state()
+
 @app.route('/js/<path:path>')
 def send_js(path):
     return send_from_directory('frontend/dist/js', path)

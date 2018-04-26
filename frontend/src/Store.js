@@ -10,7 +10,8 @@ export default new Vuex.Store({
         configuration: null,
         options: null,
         train: { epoch: 0, accuracy: [] },
-        result: null
+        result: null,
+        error: ""
     },
     mutations:{
         SOCKET_CONNECT: (state) => {
@@ -32,6 +33,10 @@ export default new Vuex.Store({
         SOCKET_RESULT: (state,  data) => {
             state.result = data[0]
             console.log(state.result)
+        },
+        SOCKET_ERROR: (state, data) => {
+            state.error = data[0]
+            console.log(state.error)
         }
     },
     actions: {

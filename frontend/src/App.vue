@@ -2,8 +2,17 @@
   <div id="app">
     <vue-headful title="Neural Vision Playground" />
     <Navbar/>
-    <b-container class="py-4">
+    
+    <b-container class="my-4">
+      <b-alert variant="danger"
+             dismissible
+             :show="showDismissibleAlert"
+             @dismissed="showDismissibleAlert=false">
+        {{ error }}
+      </b-alert>
+
       <server-disconnected v-if="!connect"/>
+
       <playground v-if="connect" />
     </b-container>
   </div>
@@ -19,13 +28,23 @@ import Store from './Store'
 export default {
   name: 'app',
   store: Store,
+  data: () => ({
+    showDismissibleAlert: false
+  }),
   computed: mapState([
-    'connect'
+    'connect',
+    'error'
   ]),
   components: {
     Navbar,
     ServerDisconnected,
     Playground
   },
+  watch: {
+    error () {
+      console.log('Error change')
+      this.showDismissibleAlert = true
+    }
+  }
 }
 </script>
