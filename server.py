@@ -273,14 +273,14 @@ def on_start_train():
     sess.run(init)
 
     train_accuracy = []
-
+    current_accuracy = 0.0
     for i in range(config.epoch+1):
         batch = mnist.train.next_batch(batchSize)
         sess.run(train_step, feed_dict={x:batch[0],true_y:batch[1], keep_prob: config.dropout})
         if i % 10 == 0:
-            train_accuracy.append(
-                float(sess.run(accuracy, feed_dict={x:batch[0],true_y:batch[1], keep_prob:1.0}))
-            )
+            new_accuracy = float(sess.run(accuracy, feed_dict={x:batch[0],true_y:batch[1], keep_prob:1.0}))
+            current_accuracy = current_accuracy * 0.75 + new_accuracy * 0.25
+            train_accuracy.append(current_accuracy)
             send_train(i, train_accuracy)
 
     send_train(config.epoch, train_accuracy)
@@ -391,6 +391,10 @@ def send_js(path):
 @app.route('/css/<path:path>')
 def send_css(path):
     return send_from_directory('frontend/dist/css', path)
+
+@app.route('/img/<path:path>')
+def send_img(path):
+    return send_from_directory('frontend/dist/img', path)
 
 @app.route('/')
 def root():

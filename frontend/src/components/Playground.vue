@@ -36,7 +36,7 @@
       <b-progress :value="current_epoch" :max="epoch" show-value animated></b-progress>
     </b-card>
 
-    <b-card class="mt-4" title="Train Accuracy" v-if="accuracy.length>0" @focus="accuracy.length>0">
+    <b-card class="mt-4" title="Average Accuracy" v-if="accuracy.length>0" @focus="accuracy.length>0">
       <line-chart :height="300" :chart-data="accuracyData"/>
     </b-card>
 
@@ -69,11 +69,11 @@
       </b-row>
     </b-card>
 
-    <b-card class="mt-4" title="Reaction Inside Layer" v-if="waitResult">
+    <b-card class="mt-4" title="Reaction Inside Network" v-if="waitResult">
       <b-progress :value="100" variant="primary" striped animated class="mb-2"></b-progress>
     </b-card>
 
-    <b-card class="mt-4" title="Reaction Inside Layer" v-if="result && trained && !waitResult">
+    <b-card class="mt-4" title="Reaction Inside Network" v-if="result && trained && !waitResult">
       <b-card class="mt-4" title="Input Image" v-if="trained">
         <b-img :src="result.input_image" />
       </b-card>
