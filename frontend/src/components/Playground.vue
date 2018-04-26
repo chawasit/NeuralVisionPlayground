@@ -64,7 +64,7 @@
       <b-card v-for="{config, images, index} in result.convolution" :key="index">
         <h5>{{ config.type }} layer, kernel size: {{ config.kernel }} {{ config.type === 'convolution' ? `, nodes: ${config.nodes}`: '' }}</h5>
         <b-row >
-          <b-col v-for="image in images" :key="image">
+          <b-col v-for="(image, index) in images" :key="`${config}-${index}`">
             <b-img :src="image" />
           </b-col>
         </b-row>
@@ -78,7 +78,6 @@
         <bar-chart :height="300" :chart-data="predictData"></bar-chart>
       </b-card>
     </b-card>
-
 
   </div>
 </template>
