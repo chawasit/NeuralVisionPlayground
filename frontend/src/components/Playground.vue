@@ -1,6 +1,17 @@
 <template>
   <div>
-    <b-card title="Network Configuration">
+    <b-container>
+      <h1>Playground</h1>
+      <p>
+        แสดงการสร้างโมเดลอย่างง่ายเพื่อจำแนกรูปตัวเลขที่วาดด้วยมือ
+      </p>
+    </b-container>
+
+    <b-card title="Network Configuration" class="mt-4">
+      <p class="card-text">
+        กำหนดชั้นต่าง ๆ สำหรับการทำ convolution (image filter) และการทำ pooling
+      </p>
+
       <convolution-network />
       
       <b-alert variant="danger"
@@ -29,12 +40,14 @@
       <line-chart :height="300" :chart-data="accuracyData"/>
     </b-card>
 
-    <b-card class="mt-4" title="Input Selector" v-if="trained">
+    <b-card class="mt-4" title="Input Image" v-if="trained">
       <b-row>
         <b-col>
-          <black-paper @stopdrawing="runWithImage" v-b-tooltip.hover title="วาดตัวเลข" :disabled="waitResult"/>
+          <h5>วาดตัวเลข</h5>
+          <black-paper @stopdrawing="runWithImage" :disabled="waitResult"/>
         </b-col>
         <b-col>
+          <h5>สุ่มตัวเลข</h5>
           <b-btn-group v-b-tooltip.hover title="สุ่มรูปตัวเลขจากทั้งหมด หรือสุ่มตามเลขที่กำหนด">
           <b-button variant="primary" :disabled="waitResult" @click="run(-1)" >Random</b-button>
           <b-button variant="outline-primary" :disabled="waitResult" @click="run(0)" >0</b-button>

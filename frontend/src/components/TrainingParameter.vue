@@ -1,5 +1,9 @@
 <template>
   <b-card title="Training Parameters">
+    <p class="card-text">
+      ค่าต่าง ๆ ในส่วนนี้จะเกี่ยวข้องการวิธีการฝึกสอนโมเดล
+    </p>
+
     <!-- training parameter -->
     <b-form class="mt-3">
       <b-form-row>
