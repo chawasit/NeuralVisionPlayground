@@ -2,7 +2,14 @@
   <div>
     <b-card title="Network Configuration">
       <convolution-network />
-
+      
+      <b-alert variant="danger"
+             dismissible
+             :show="showDismissibleAlert"
+             @dismissed="showDismissibleAlert=false">
+        {{ error }}
+      </b-alert>
+      
       <training-parameter/>
 
       <div class="mt-3">
@@ -89,6 +96,9 @@ export default {
     BarChart,
     LineChart
   },
+  data: () => ({
+    showDismissibleAlert: false
+  }),
   computed: mapState({
     trained: state => state.configuration.state == 'trained',
     training: state => state.configuration.state == 'training',
@@ -115,7 +125,8 @@ export default {
           data: state.train.accuracy
         }
       ]
-    })
+    }),
+    error: state => state.error
   }),
   methods: {
     startTrain() {
@@ -132,6 +143,12 @@ export default {
     },
     runWithImage(image) {
       this.$socket.emit('runWithImage', image)
+    }
+  },
+  watch: {
+    error () {
+      console.log('Error change')
+      this.showDismissibleAlert = true
     }
   }
 }

@@ -229,24 +229,33 @@ def on_start_train():
 
     x_image = tf.reshape(x,[-1,28,28,1])
     network = [x, keep_prob, x_image]
+    layer_id = 0
     for layer_config in config.convolution_network:
-        kernel_size = layer_config['kernel']
-        nodes = layer_config['nodes']
-        if layer_config['type'] == LAYER_CONVOLUTION:
-            network.append(
-                slim.conv2d(network[-1], nodes, [kernel_size, kernel_size]) 
-            )
-        elif layer_config['type'] == LAYER_AVG_POOL:
-            network.append( 
-                slim.avg_pool2d(network[-1], [kernel_size, kernel_size]) 
-            )
-        elif layer_config['type'] == LAYER_MAX_POOL:
-            network.append( 
-                slim.max_pool2d(network[-1], [kernel_size, kernel_size]) 
-            )
-        else:
-            send_error("Something went wrong! Unknow layer type")
-            break
+        try:
+            layer_id += 1
+            layer_type = layer_config['type']
+            kernel_size = layer_config['kernel']
+            nodes = layer_config['nodes']
+            if layer_type == LAYER_CONVOLUTION:
+                network.append(
+                    slim.conv2d(network[-1], nodes, [kernel_size, kernel_size]) 
+                )
+            elif layer_type == LAYER_AVG_POOL:
+                network.append( 
+                    slim.avg_pool2d(network[-1], [kernel_size, kernel_size]) 
+                )
+            elif layer_type == LAYER_MAX_POOL:
+                network.append( 
+                    slim.max_pool2d(network[-1], [kernel_size, kernel_size]) 
+                )
+            else:
+                send_error("Something went wrong! Unknow layer type")
+                break
+        except ValueError:
+            if layer_type == 'convolution':
+                raise ValueError(f"Negative dimension size occurred when create {layer_type} layer no.{layer_id} with kernel size {kernel_size} and {nodes} nodes.")
+            else:
+                raise ValueError(f"Negative dimension size occurred when create {layer_type} layer no.{layer_id} with kernel size {kernel_size}")
 
     flatten = slim.flatten(network[-1])
     out_y = slim.fully_connected(flatten, 10, activation_fn=tf.nn.softmax)

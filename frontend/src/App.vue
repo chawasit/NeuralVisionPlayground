@@ -4,13 +4,6 @@
     <Navbar/>
     
     <b-container class="my-4">
-      <b-alert variant="danger"
-             dismissible
-             :show="showDismissibleAlert"
-             @dismissed="showDismissibleAlert=false">
-        {{ error }}
-      </b-alert>
-
       <server-disconnected v-if="!connect"/>
 
       <playground v-if="connect" />
@@ -28,9 +21,6 @@ import Store from './Store'
 export default {
   name: 'app',
   store: Store,
-  data: () => ({
-    showDismissibleAlert: false
-  }),
   computed: mapState([
     'connect',
     'error'
@@ -39,12 +29,6 @@ export default {
     Navbar,
     ServerDisconnected,
     Playground
-  },
-  watch: {
-    error () {
-      console.log('Error change')
-      this.showDismissibleAlert = true
-    }
   }
 }
 </script>
